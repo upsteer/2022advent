@@ -25,7 +25,6 @@ func main() {
 		if d == "" {
 			continue
 		}
-		fmt.Println("eachData", d)
 		var sections = strings.Split(d, ",")
 		lengths := []int{}
 		arrays := [][]int32{}
