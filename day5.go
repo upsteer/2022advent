@@ -54,24 +54,24 @@ func main() {
 			nums = append(nums, i)
 		}
 		//For Part 1, just uncomment this if clause and comment the else clause
-		// if nums[0] == 1 {
-		for j := 0; j < nums[0]; j++ {
-			pos := strconv.Itoa(nums[1])
-			popped := stackMap[pos][len(stackMap[pos])-1]
-			stackMap[pos] = stackMap[pos][:len(stackMap[pos])-1]
-			stackMap[strconv.Itoa(nums[2])] = append(stackMap[strconv.Itoa(nums[2])], popped)
-			// }
-			// } else {
-			// poppedArr := []string{}
-			// for j := 0; j < nums[0]; j++ {
-			// 	pos := strconv.Itoa(nums[1])
-			// 	poppedArr = append(poppedArr, stackMap[pos][len(stackMap[pos])-1])
-			// 	stackMap[pos] = stackMap[pos][:len(stackMap[pos])-1]
-			// }
-			// for i, j := 0, len(poppedArr)-1; i < j; i, j = i+1, j-1 {
-			// 	poppedArr[i], poppedArr[j] = poppedArr[j], poppedArr[i]
-			// }
-			// stackMap[strconv.Itoa(nums[2])] = append(stackMap[strconv.Itoa(nums[2])], poppedArr...)
+		if nums[0] == 1 {
+			for j := 0; j < nums[0]; j++ {
+				pos := strconv.Itoa(nums[1])
+				popped := stackMap[pos][len(stackMap[pos])-1]
+				stackMap[pos] = stackMap[pos][:len(stackMap[pos])-1]
+				stackMap[strconv.Itoa(nums[2])] = append(stackMap[strconv.Itoa(nums[2])], popped)
+			}
+		} else {
+			poppedArr := []string{}
+			for j := 0; j < nums[0]; j++ {
+				pos := strconv.Itoa(nums[1])
+				poppedArr = append(poppedArr, stackMap[pos][len(stackMap[pos])-1])
+				stackMap[pos] = stackMap[pos][:len(stackMap[pos])-1]
+			}
+			for i, j := 0, len(poppedArr)-1; i < j; i, j = i+1, j-1 {
+				poppedArr[i], poppedArr[j] = poppedArr[j], poppedArr[i]
+			}
+			stackMap[strconv.Itoa(nums[2])] = append(stackMap[strconv.Itoa(nums[2])], poppedArr...)
 		}
 	}
 	finale := ""
