@@ -18,7 +18,6 @@ func main() {
 		return
 	}
 	var eachData = strings.Split(data, "")
-	fmt.Println("eachData", eachData)
 	for i := 0; i < len(eachData); i++ {
 		if unique(eachData[i : i+4]) {
 			fmt.Println("answer", i+4)
