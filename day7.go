@@ -29,7 +29,7 @@ func main() {
 
 func (tree *Tree) traverse() {
 	dirStruct := map[string][]string{}
-	currentDir := "/"
+	currentDir := ""
 	lastDir := []string{}
 	for num, d := range tree.originalData {
 		if d == "" {
@@ -37,24 +37,25 @@ func (tree *Tree) traverse() {
 		}
 		tree.currentLine = num
 		var cmds = strings.Split(d, " ")
-		if strings.HasPrefix(d, "$ ls") {
-			// calculateFileSizes()
-		} else if strings.HasPrefix(d, "$ cd") {
+		if strings.HasPrefix(d, "$ cd") {
 			if strings.HasPrefix(d, "$ cd ..") {
-				// fmt.Println(num, d)
 				currentDir = lastDir[len(lastDir)-1]
 				lastDir = lastDir[:len(lastDir)-1]
 			} else {
-				lastDir = append(lastDir, currentDir)
 				currentDir = cmds[2]
-				// fmt.Println(num, d)
+				lastDir = append(lastDir, currentDir)
 			}
+			fmt.Println("curr", lastDir)
 		} else {
 			structure := strings.Split(d, " ")
+			if strings.HasPrefix(d, "$ ls") {
+				continue
+			}
+			running := strings.Join(lastDir, ",")
 			if strings.Contains(structure[0], "dir") {
-				dirStruct[currentDir] = append(dirStruct[currentDir], d)
+				dirStruct[running] = append(dirStruct[running], strings.Join(lastDir, ",")+","+structure[1])
 			} else {
-				dirStruct[currentDir] = append(dirStruct[currentDir], structure[0])
+				dirStruct[running] = append(dirStruct[running], structure[0])
 			}
 		}
 	}
@@ -68,12 +69,12 @@ func (tree *Tree) traverse() {
 		for key, files := range dirStruct {
 			pure := true
 			for index, f := range files {
-				childs := strings.Split(f, " ")
-				if len(childs) > 1 {
+				_, err := strconv.Atoi(f)
+				if err != nil {
 					pure = false
-					if len(dirStruct[childs[1]]) == 1 {
-						dirStruct[key][index] = dirStruct[childs[1]][0]
-					}
+					file := remove(files, index)
+					file = append(file, dirStruct[f]...)
+					dirStruct[key] = file
 				}
 			}
 			if pure {
@@ -98,4 +99,8 @@ func (tree *Tree) traverse() {
 		}
 	}
 	fmt.Println("first", firstSum)
+}
+
+func remove(slice []string, s int) []string {
+	return append(slice[:s], slice[s+1:]...)
 }
