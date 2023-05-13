@@ -2,7 +2,6 @@ package main
 
 import (
 	"advent-2022/filereader"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -45,7 +44,6 @@ func (tree *Tree) traverse() {
 				currentDir = cmds[2]
 				lastDir = append(lastDir, currentDir)
 			}
-			fmt.Println("curr", lastDir)
 		} else {
 			structure := strings.Split(d, " ")
 			if strings.HasPrefix(d, "$ ls") {
@@ -59,22 +57,24 @@ func (tree *Tree) traverse() {
 			}
 		}
 	}
-	jsStr, _ := json.Marshal(dirStruct)
-	fmt.Println(string(jsStr))
 	pureElems := map[string]bool{}
+	onlyFileSizesinRoot := 0
+	for _, f := range dirStruct["/"] {
+		num, err := strconv.Atoi(f)
+		if err == nil {
+			onlyFileSizesinRoot += num
+		}
+	}
 	for {
 		if len(pureElems) == len(dirStruct) {
 			break
 		}
 		for key, files := range dirStruct {
 			pure := true
-			for index, f := range files {
+			for _, f := range files {
 				_, err := strconv.Atoi(f)
 				if err != nil {
 					pure = false
-					file := remove(files, index)
-					file = append(file, dirStruct[f]...)
-					dirStruct[key] = file
 				}
 			}
 			if pure {
@@ -86,21 +86,65 @@ func (tree *Tree) traverse() {
 					}
 				}
 				dirStruct[key] = []string{strconv.Itoa(sum)}
+				for kk, val := range dirStruct {
+					for _, purity := range val {
+						if purity == key {
+							removed := remove(val, purity)
+							dirStruct[kk] = removed
+							dirStruct[kk] = append(dirStruct[kk], strconv.Itoa(sum))
+						}
+					}
+				}
 				pureElems[key] = true
 			}
 		}
-
 	}
 	firstSum := 0
+	slashSize := 0
 	for _, files := range dirStruct {
 		num, err := strconv.Atoi(files[0])
 		if err == nil && num < 100000 {
 			firstSum += num
 		}
 	}
-	fmt.Println("first", firstSum)
+	fmt.Println("Sum of directories with files/dirs exceeding 100000 is:", firstSum)
+	slashSize += onlyFileSizesinRoot
+
+	/*
+		Second Part
+	*/
+
+	tree.FindDirectoryToDelete(dirStruct)
 }
 
-func remove(slice []string, s int) []string {
-	return append(slice[:s], slice[s+1:]...)
+func (tree *Tree) FindDirectoryToDelete(dir map[string][]string) {
+	totalConsumed, _ := strconv.Atoi(dir["/"][0])
+	unused := 70000000 - totalConsumed
+	selectedForDeletion := []int{}
+	for d, files := range dir {
+		if d == "/" {
+			continue
+		}
+		num, err := strconv.Atoi(files[0])
+		if err == nil && unused+num > 30000000 {
+			selectedForDeletion = append(selectedForDeletion, num)
+		}
+	}
+	smallest := 1010101010101
+	for _, small := range selectedForDeletion {
+		if small < smallest {
+			smallest = small
+		}
+	}
+	fmt.Println("Size of the smallest directory to delete", smallest)
+}
+
+func remove(s []string, what string) []string {
+	for i, v := range s {
+		if v == what {
+			s = append(s[:i], s[i+1:]...)
+			break
+		}
+	}
+	return s
 }
